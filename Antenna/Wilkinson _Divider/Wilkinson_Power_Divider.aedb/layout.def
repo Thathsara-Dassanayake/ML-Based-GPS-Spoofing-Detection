@@ -1,0 +1,4 @@
+DEFINE layout0 layout0
+ASSIGN layout0 libMode shared
+DEFINE layout1 layout1
+ASSIGN layout1 libMode shared

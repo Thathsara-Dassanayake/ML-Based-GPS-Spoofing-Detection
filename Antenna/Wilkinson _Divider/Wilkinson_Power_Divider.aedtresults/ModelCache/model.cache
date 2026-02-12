@@ -1,0 +1,7 @@
+$begin 'Models'
+	$begin ''
+		Name='model_1'
+		Key=''
+		ID=1
+	$end ''
+$end 'Models'

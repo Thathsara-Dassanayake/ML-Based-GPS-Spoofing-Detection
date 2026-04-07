@@ -1,3 +1,7 @@
+PS D:\UoM\Final Year Project\FYP GitHub\ML-Based-GPS-Spoofing-Detection> Set-ExecutionPolicy -Scope Process -ExecutionPolicy Bypass
+PS D:\UoM\Final Year Project\FYP GitHub\ML-Based-GPS-Spoofing-Detection> .\ML_model_2\.venv\Scripts\Activate.ps1
+
+
 python .\run_stream_inference.py `
   --source_bin ".\ML_model_2\test_data\big_capture.bin" `
   --model_dir ".\ML_model_2\Model" `

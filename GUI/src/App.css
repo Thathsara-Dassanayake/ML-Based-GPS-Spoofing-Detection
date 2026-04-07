@@ -1,140 +1,162 @@
-/* App.css - clean, simple professional styling */
-
-:root{
-  --bg: #f4f6f8;
-  --panel: #ffffff;
-  --muted: #6b7280;
-  --accent: #0b4f6c;
-  --bad: #b30000;
-  --warn: #b36b00;
-  --good: #0a8f3f;
-}
-
-body, html, #root {
-  height: 100%;
-  margin: 0;
-  font-family: Inter, "Segoe UI", Roboto, Arial, sans-serif;
-  background: var(--bg);
-  color: #111827;
-}
-
-.app-root{
-  max-width: 1100px;
-  margin: 18px auto;
-  padding: 18px;
-}
-
-/* Header */
-.header {
-  display:flex;
-  align-items:center;
-  justify-content:space-between;
-  background: linear-gradient(90deg, #072029, #0b3b4b);
-  color: #fff;
-  padding: 14px 18px;
-  border-radius: 8px;
-  margin-bottom: 18px;
-}
-.header h1 { margin: 0; font-size: 20px; }
-.header .sub { margin: 0; font-size: 12px; color: #cfeaf5; }
-.header-right small { opacity: 0.9; }
-
-/* main grid */
-.main-grid {
-  display: grid;
-  grid-template-columns: 1fr 300px;
-  gap: 14px;
-  margin-bottom: 14px;
-}
-
-/* Status panel */
-.status-panel {
-  background: var(--panel);
-  padding: 12px;
-  border-radius: 8px;
-  box-shadow: 0 0 0 1px rgba(5,10,15,0.02);
-}
-
-.status-row {
-  display: flex;
-  gap: 12px;
-  margin-bottom: 10px;
-}
-
-.status-card {
-  flex: 1;
-  padding: 8px;
-  border-radius: 6px;
-  background: #fbfdff;
+.app-root {
   display: flex;
   flex-direction: column;
-  align-items: flex-start;
+  width: 100vw;
+  min-height: 100vh;
+  padding: 2rem;
+  box-sizing: border-box;
+  max-width: 1200px;
+  margin: 0 auto;
 }
 
-.status-card .label { font-size: 12px; color: var(--muted); }
-.status-card .value { font-weight: 700; font-size: 16px; margin-top: 6px; }
-
-.value.running { color: var(--accent); }
-.value.good { color: var(--good); }
-.value.bad { color: var(--bad); }
-
-/* controls */
-.controls {
-  background: var(--panel);
-  padding: 12px;
-  border-radius: 8px;
+.main-content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  flex-grow: 1;
+  gap: 4rem;
 }
 
-.demo-btn {
-  padding: 8px 12px;
-  cursor: pointer;
-  border: 0;
-  background: var(--accent);
-  color: white;
-  border-radius: 6px;
+/* Beautiful Status Panel */
+.status-panel-beautiful {
+  display: flex;
+  align-items: center;
+  gap: 1.5rem;
+  padding: 2rem 4rem;
+  border-radius: 100px;
+  background: rgba(255, 255, 255, 0.03);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+  transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+  min-width: 600px;
+  justify-content: center;
+}
+
+.status-indicator {
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  background: #64748b;
+  box-shadow: 0 0 0 0 rgba(100, 116, 139, 0.7);
+}
+
+.status-text {
+  font-size: 2rem;
+  font-weight: 800;
+  margin: 0;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: #94a3b8;
+}
+
+/* States */
+.status-legitimate {
+  border-color: rgba(34, 197, 94, 0.3);
+  box-shadow: 0 8px 32px 0 rgba(34, 197, 94, 0.1);
+}
+
+.status-legitimate .status-indicator {
+  background: #22c55e;
+  animation: pulse-green 2s infinite;
+}
+
+.status-legitimate .status-text {
+  color: #4ade80;
+  text-shadow: 0 0 20px rgba(74, 222, 128, 0.4);
+}
+
+.status-spoofed {
+  border-color: rgba(239, 68, 68, 0.5);
+  box-shadow: 0 8px 32px 0 rgba(239, 68, 68, 0.2);
+  background: rgba(239, 68, 68, 0.05);
+  animation: shake 0.5s cubic-bezier(.36,.07,.19,.97) both;
+}
+
+.status-spoofed .status-indicator {
+  background: #ef4444;
+  animation: flash-red 1s infinite alternate;
+}
+
+.status-spoofed .status-text {
+  color: #f87171;
+  text-shadow: 0 0 20px rgba(248, 113, 113, 0.6);
+}
+
+/* Controls */
+.controls-container {
+  display: flex;
+  gap: 2rem;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
+.controls-container button {
+  padding: 1rem 2.5rem;
+  font-size: 1.1rem;
   font-weight: 600;
+  border-radius: 50px;
+  border: none;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  letter-spacing: 0.05em;
+  position: relative;
+  overflow: hidden;
 }
 
-.hint { margin-top: 8px; font-size: 12px; color: var(--muted); }
-
-/* Spoof banner */
-.spoof-banner {
-  margin: 8px 0 20px;
-  padding: 14px;
-  background: linear-gradient(90deg,var(--bad),#8f0000);
-  color: #fff;
-  border-radius: 8px;
-  font-weight: 700;
+.btn-acquire {
+  background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+  color: white;
+  box-shadow: 0 4px 15px rgba(16, 185, 129, 0.3);
 }
 
-.spoof-title { font-size: 16px; }
-.spoof-body { font-weight: 500; font-size: 13px; margin-top: 6px; }
-
-/* satellite table */
-.sat-table {
-  background: var(--panel);
-  padding: 14px;
-  border-radius: 8px;
-  box-shadow: 0 0 0 1px rgba(5,10,15,0.02);
+.btn-acquire:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(16, 185, 129, 0.5);
 }
 
-.sat-table h2 { margin-top: 0; }
-
-table {
-  width: 100%;
-  border-collapse: collapse;
-  font-size: 14px;
+.btn-spoof {
+  background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+  color: white;
+  box-shadow: 0 4px 15px rgba(239, 68, 68, 0.3);
 }
 
-th, td {
-  padding: 10px 8px;
-  text-align: center;
-  border-bottom: 1px solid #eef2f6;
+.btn-spoof:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(239, 68, 68, 0.5);
 }
 
-th { font-weight: 700; color: var(--muted); font-size: 13px; }
+.btn-stop {
+  background: #334155;
+  color: white;
+}
 
-/* row coloring based on class */
-tr.tracking { background: #f1fbf3; }
-tr.suspect { background: #fff9e6; }
-tr.lost { background: #fff0f0; }
+.btn-stop:hover {
+  background: #475569;
+}
+
+.controls-container button.active {
+  opacity: 0.8;
+  cursor: default;
+  transform: scale(0.98);
+}
+
+/* Animations */
+@keyframes pulse-green {
+  0% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(34, 197, 94, 0.7); }
+  70% { transform: scale(1); box-shadow: 0 0 0 15px rgba(34, 197, 94, 0); }
+  100% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(34, 197, 94, 0); }
+}
+
+@keyframes flash-red {
+  0% { box-shadow: 0 0 20px 5px rgba(239, 68, 68, 0.4); transform: scale(1); }
+  100% { box-shadow: 0 0 40px 15px rgba(239, 68, 68, 0.8); transform: scale(1.2); }
+}
+
+@keyframes shake {
+  10%, 90% { transform: translate3d(-1px, 0, 0); }
+  20%, 80% { transform: translate3d(2px, 0, 0); }
+  30%, 50%, 70% { transform: translate3d(-4px, 0, 0); }
+  40%, 60% { transform: translate3d(4px, 0, 0); }
+}

@@ -1,36 +1,25 @@
-import type { Satellite } from "../App";
+import React from 'react';
 
 type Props = {
-  spoofDetected: boolean;
-  satellites: Satellite[];
+  status: "Legitimate" | "Spoofed" | "Inactive";
 };
 
-export default function StatusPanel({
-  spoofDetected,
-  satellites,
-}: Props) {
-  const tracked = satellites.filter(s => s.status === "TRACKING").length;
-  const suspect = satellites.filter(s => s.status === "SUSPECT").length;
-  const lost = satellites.filter(s => s.status === "LOST").length;
+export default function StatusPanel({ status }: Props) {
+  let statusClass = "status-inactive";
+  let statusText = "INACTIVE - Select a Signal to Acquire";
+
+  if (status === "Legitimate") {
+    statusClass = "status-legitimate";
+    statusText = "TRACKING: LEGITIMATE";
+  } else if (status === "Spoofed") {
+    statusClass = "status-spoofed";
+    statusText = "DANGER: SPOOFED SIGNAL DETECTED";
+  }
 
   return (
-    <div className="status-panel">
-      <div>
-        <strong>Receiver:</strong> RUNNING
-      </div>
-      <div>
-        <strong>Spoofing:</strong>{" "}
-        {spoofDetected ? "SPOOFED" : "SAFE"}
-      </div>
-      <div>
-        <strong>Tracked:</strong> {tracked}
-      </div>
-      <div>
-        <strong>Suspect:</strong> {suspect}
-      </div>
-      <div>
-        <strong>Lost:</strong> {lost}
-      </div>
+    <div className={`status-panel-beautiful ${statusClass}`}>
+      <div className="status-indicator"></div>
+      <h2 className="status-text">{statusText}</h2>
     </div>
   );
 }

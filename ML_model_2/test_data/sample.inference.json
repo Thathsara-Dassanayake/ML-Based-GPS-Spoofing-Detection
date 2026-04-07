@@ -1,0 +1,15 @@
+{
+  "file": ".\\ML_model_2\\test_data\\sample.bin",
+  "device": "cpu",
+  "num_complex_samples": 50000,
+  "num_segments_used": 20,
+  "segment_len": 512,
+  "n_scales": 64,
+  "avg_legitimate_probability": 0.4046383500099182,
+  "avg_spoof_probability": 0.5953616499900818,
+  "segment_legitimate_ratio": 0.4,
+  "segment_spoof_ratio": 0.6,
+  "final_prediction": "Spoofed",
+  "threshold_2sigma": 0.0015231825890172934,
+  "threshold_3sigma": 0.0020611224024176126
+}

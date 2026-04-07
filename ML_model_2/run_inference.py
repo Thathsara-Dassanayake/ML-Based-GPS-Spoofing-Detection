@@ -170,9 +170,9 @@ def signal_to_scalograms(signal, segment_len=SEGMENT_LEN, stride=None, max_segme
 def load_models(model_dir, device):
     model_dir = Path(model_dir)
 
-    encoder_path = model_dir / "nemesis_encoder.pt"
-    probe_path = model_dir / "nemesis_mlp_probe.pt"
-    scaler_path = model_dir / "nemesis_mlp_scaler.pkl"
+    encoder_path = model_dir / "nemesis_encoder (1).pt"
+    probe_path = model_dir / "nemesis_mlp_probe (1).pt"
+    scaler_path = model_dir / "nemesis_mlp_scaler (1).pkl"
 
     if not encoder_path.exists():
         raise FileNotFoundError(f"Missing: {encoder_path}")

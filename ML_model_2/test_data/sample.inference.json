@@ -1,15 +1,15 @@
 {
   "file": ".\\ML_model_2\\test_data\\sample.bin",
   "device": "cpu",
-  "num_complex_samples": 20000,
-  "num_segments_used": 20,
+  "num_complex_samples": 100000,
+  "num_segments_used": 50,
   "segment_len": 512,
   "n_scales": 64,
-  "avg_legitimate_probability": 0.6221388578414917,
-  "avg_spoof_probability": 0.3778611421585083,
-  "segment_legitimate_ratio": 0.65,
-  "segment_spoof_ratio": 0.35,
+  "avg_legitimate_probability": 0.6485005021095276,
+  "avg_spoof_probability": 0.3514995276927948,
+  "segment_legitimate_ratio": 0.8,
+  "segment_spoof_ratio": 0.2,
   "final_prediction": "Legitimate",
-  "threshold_2sigma": 0.0015231825890172934,
-  "threshold_3sigma": 0.0020611224024176126
+  "threshold_2sigma": 1.155436635017395,
+  "threshold_3sigma": 1.486844539642334
 }

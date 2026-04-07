@@ -1,0 +1,24 @@
+python .\run_stream_inference.py `
+  --source_bin ".\ML_model_2\test_data\big_capture.bin" `
+  --model_dir ".\ML_model_2\Model" `
+  --live_bin ".\stream_out\live_sample.bin" `
+  --latest_json ".\stream_out\latest_status.json" `
+  --history_jsonl ".\stream_out\history.jsonl" `
+  --sample_window_complex 50000 `
+  --read_chunk_complex 10000 `
+  --max_segments 50
+
+
+
+If the big file is still being written continuously and you want the script to keep watching it, run:
+
+python .\run_stream_inference.py `
+  --source_bin ".\ML_model_2\test_data\big_capture.bin" `
+  --model_dir ".\ML_model_2\Model" `
+  --live_bin ".\stream_out\live_sample.bin" `
+  --latest_json ".\stream_out\latest_status.json" `
+  --history_jsonl ".\stream_out\history.jsonl" `
+  --sample_window_complex 50000 `
+  --read_chunk_complex 10000 `
+  --max_segments 50 `
+  --follow

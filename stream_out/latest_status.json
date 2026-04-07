@@ -1,0 +1,23 @@
+{
+  "timestamp_epoch": 1775578890.241825,
+  "timestamp_iso": "2026-04-07T21:51:30",
+  "iteration": 581,
+  "source_file": "ML_model_2\\test_data\\clearsky_signal_C-1_middle_78MB.bin",
+  "live_bin_file": "stream_out\\live_sample.bin",
+  "window_complex_samples": 50000,
+  "new_chunk_complex_samples": 10000,
+  "status": "Legitimate",
+  "result": {
+    "num_complex_samples": 50000,
+    "num_segments_used": 50,
+    "segment_len": 512,
+    "n_scales": 64,
+    "avg_legitimate_probability": 0.6503216624259949,
+    "avg_spoof_probability": 0.3496783971786499,
+    "segment_legitimate_ratio": 0.74,
+    "segment_spoof_ratio": 0.26,
+    "final_prediction": "Legitimate",
+    "threshold_2sigma": 1.155436635017395,
+    "threshold_3sigma": 1.486844539642334
+  }
+}

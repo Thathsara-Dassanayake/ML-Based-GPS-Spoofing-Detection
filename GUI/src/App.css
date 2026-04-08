@@ -34,11 +34,11 @@
 }
 
 .header-sub {
-  font-size: 1.4rem;
+  font-size: 1.75rem;
   color: #64748b;
-  margin: 0.5rem 0 0 0;
-  font-weight: 300;
-  letter-spacing: 0.05em;
+  margin: 0.65rem 0 0 0;
+  font-weight: 500;
+  letter-spacing: 0.04em;
 }
 
 .header-badge {
@@ -325,6 +325,41 @@
 .row-green .h-type { color: #10b981; }
 .h-prob { text-align: right; font-family: monospace; color: #cbd5e1; }
 
+/* SDR Simulator Indicator */
+.sdr-indicator-container {
+  display: flex;
+  justify-content: center;
+  width: 100%;
+  margin-bottom: -1.5rem;
+}
+
+.sdr-text {
+  font-family: monospace;
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: #10b981;
+  background: rgba(16, 185, 129, 0.05);
+  padding: 0.6rem 2rem;
+  border-radius: 6px;
+  border: 1px dashed rgba(16, 185, 129, 0.3);
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+}
+
+.sdr-text.alert {
+  color: #ef4444;
+  background: rgba(239, 68, 68, 0.05);
+  border-color: rgba(239, 68, 68, 0.3);
+}
+
+.blinking {
+  animation: sdr-blink 1.5s infinite;
+}
+
+@keyframes sdr-blink {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.3; }
+}
 
 /* Controls */
 .controls-container {

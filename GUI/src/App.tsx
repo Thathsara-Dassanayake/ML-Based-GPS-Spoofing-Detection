@@ -29,6 +29,7 @@ function App() {
   const [elapsed, setElapsed] = useState(0);
   const [history, setHistory] = useState<IterationHistory[]>([]);
   const [showHistory, setShowHistory] = useState(false);
+  const [iterationOffset, setIterationOffset] = useState<number>(0);
 
   // To avoid duplicate history insertions
   const lastIterationRef = useRef<number>(-1);
@@ -42,7 +43,7 @@ function App() {
         const response = await fetch('/api/status');
         if (response.ok) {
           const data = await response.json();
-          if (data.status) {
+          if (data.status && data.status !== "Inactive") {
             setStatus(data.status as StatusType);
             setActiveData(data);
 
@@ -53,7 +54,7 @@ function App() {
             if (data.iteration && data.iteration !== lastIterationRef.current) {
               lastIterationRef.current = data.iteration;
               setHistory(prev => [{
-                iteration: data.iteration,
+                iteration: data.iteration + iterationOffset,
                 time: data.timestamp_iso || new Date().toISOString(),
                 status: data.status,
                 legitProb: data.result?.avg_legitimate_probability || 0,
@@ -61,11 +62,15 @@ function App() {
               }, ...prev]);
             }
           } else {
-            setStatus("Inactive");
+             // File was potentially locally deleted by starting a new stream
+             // If we aren't loading, actually drop to Inactive
+             if (!loadingType) {
+               setStatus("Inactive");
+             }
           }
         }
       } catch (err) {
-        if (status !== 'Inactive') setStatus("Inactive");
+        if (!loadingType && status !== 'Inactive') setStatus("Inactive");
       }
     };
 
@@ -74,7 +79,7 @@ function App() {
     }
 
     return () => clearInterval(interval);
-  }, [loadingType, status, startTime]);
+  }, [loadingType, status, startTime, iterationOffset]);
 
   // Handle local 1s timer updates independently to prevent lag
   useEffect(() => {
@@ -88,14 +93,23 @@ function App() {
   }, [startTime, status]);
 
   const startStream = async (type: "spoof" | "legit") => {
+    if (status === "Inactive") {
+      setStatus("Inactive");
+      setStartTime(null);
+      setElapsed(0);
+      setHistory([]);
+      setActiveData(null);
+      lastIterationRef.current = -1;
+      setIterationOffset(0);
+      setShowHistory(false);
+    } else {
+      // Smooth Transition: We are switching streams live! Do not kill history.
+      // Offset so the new file's iterations stack continuously.
+      setIterationOffset(prev => prev + (activeData?.iteration || 0));
+      lastIterationRef.current = -1;
+    }
     setLoadingType(type);
-    setStatus("Inactive");
-    setStartTime(null);
-    setElapsed(0);
-    setHistory([]);
-    setActiveData(null);
-    lastIterationRef.current = -1;
-    setShowHistory(false);
+    
     try {
       await fetch('/api/start', {
         method: 'POST',
@@ -125,8 +139,10 @@ function App() {
   const resetTimerAndLog = () => {
     setHistory([]);
     setElapsed(0);
+    setIterationOffset(0);
     if (status !== "Inactive" || loadingType) {
       setStartTime(Date.now());
+      lastIterationRef.current = -1;
     } else {
       setStartTime(null);
     }
@@ -180,7 +196,7 @@ function App() {
           </div>
           
           <div className={`history-dropdown-wrapper ${showHistory ? 'open' : ''}`}>
-            {showHistory && (
+             {showHistory && (
               <div className="history-dropdown">
                 <h4>Session Event Log</h4>
                 {history.length === 0 ? (
@@ -201,6 +217,22 @@ function App() {
             )}
           </div>
         </div>
+
+        {/* SDR Simulation Tags */}
+        {loadingType && (
+          <div className="sdr-indicator-container">
+            {loadingType === 'legit' && (
+              <span className="sdr-text blinking">
+                ► Feeding I/Q signals from SDR to NEMESIS model...
+              </span>
+            )}
+            {loadingType === 'spoof' && (
+              <span className="sdr-text blinking alert">
+                ► Simulating spoofing attack... Feeding I/Q signals from SDR to NEMESIS model...
+              </span>
+            )}
+          </div>
+        )}
 
         <div className="controls-container">
           <button

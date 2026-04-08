@@ -1,12 +1,39 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import Header from "./components/Header";
 import StatusPanel from "./components/StatusPanel";
 import "./App.css";
 
-function App() {
-  const [status, setStatus] = useState<"Legitimate" | "Spoofed" | "Inactive">("Inactive");
-  const [loadingType, setLoadingType] = useState<string | null>(null);
+type StatusType = "Legitimate" | "Spoofed" | "Inactive";
 
+type IterationHistory = {
+  iteration: number;
+  time: string;
+  status: string;
+  legitProb: number;
+  spoofProb: number;
+};
+
+function formatTime(seconds: number) {
+  const m = Math.floor(seconds / 60).toString().padStart(2, '0');
+  const s = (seconds % 60).toString().padStart(2, '0');
+  return `${m}:${s}`;
+}
+
+function App() {
+  const [status, setStatus] = useState<StatusType>("Inactive");
+  const [loadingType, setLoadingType] = useState<string | null>(null);
+  const [activeData, setActiveData] = useState<any>(null);
+
+  // Timer & History State
+  const [startTime, setStartTime] = useState<number | null>(null);
+  const [elapsed, setElapsed] = useState(0);
+  const [history, setHistory] = useState<IterationHistory[]>([]);
+  const [showHistory, setShowHistory] = useState(false);
+
+  // To avoid duplicate history insertions
+  const lastIterationRef = useRef<number>(-1);
+
+  // Poll exactly every 1 second
   useEffect(() => {
     let interval: number;
 
@@ -16,13 +43,28 @@ function App() {
         if (response.ok) {
           const data = await response.json();
           if (data.status) {
-            setStatus(data.status);
+            setStatus(data.status as StatusType);
+            setActiveData(data);
+
+            // Time Tracking
+            if (!startTime) setStartTime(Date.now());
+
+            // History Log Tracking
+            if (data.iteration && data.iteration !== lastIterationRef.current) {
+              lastIterationRef.current = data.iteration;
+              setHistory(prev => [{
+                iteration: data.iteration,
+                time: data.timestamp_iso || new Date().toISOString(),
+                status: data.status,
+                legitProb: data.result?.avg_legitimate_probability || 0,
+                spoofProb: data.result?.avg_spoof_probability || 0
+              }, ...prev]);
+            }
           } else {
             setStatus("Inactive");
           }
         }
       } catch (err) {
-        // If server down or no status
         if (status !== 'Inactive') setStatus("Inactive");
       }
     };
@@ -32,11 +74,28 @@ function App() {
     }
 
     return () => clearInterval(interval);
-  }, [loadingType, status]);
+  }, [loadingType, status, startTime]);
+
+  // Handle local 1s timer updates independently to prevent lag
+  useEffect(() => {
+    let tInterval: number;
+    if (startTime && status !== "Inactive") {
+      tInterval = setInterval(() => {
+        setElapsed(Math.floor((Date.now() - startTime) / 1000));
+      }, 1000);
+    }
+    return () => clearInterval(tInterval);
+  }, [startTime, status]);
 
   const startStream = async (type: "spoof" | "legit") => {
     setLoadingType(type);
-    setStatus("Inactive"); // Temporarily show inactive while loading new signal
+    setStatus("Inactive");
+    setStartTime(null);
+    setElapsed(0);
+    setHistory([]);
+    setActiveData(null);
+    lastIterationRef.current = -1;
+    setShowHistory(false);
     try {
       await fetch('/api/start', {
         method: 'POST',
@@ -50,12 +109,26 @@ function App() {
   };
 
   const stopStream = async () => {
-    setLoadingType(null);
-    setStatus("Inactive");
     try {
       await fetch('/api/stop', { method: 'POST' });
     } catch (e) {
       console.error(e);
+    }
+    setLoadingType(null);
+    setStatus("Inactive");
+    setStartTime(null);
+  };
+
+  const legitProb = activeData?.result?.avg_legitimate_probability || 0;
+  const spoofProb = activeData?.result?.avg_spoof_probability || 0;
+
+  const resetTimerAndLog = () => {
+    setHistory([]);
+    setElapsed(0);
+    if (status !== "Inactive" || loadingType) {
+      setStartTime(Date.now());
+    } else {
+      setStartTime(null);
     }
   };
 
@@ -64,7 +137,70 @@ function App() {
       <Header />
 
       <div className="main-content">
-        <StatusPanel status={status} />
+        {/* Dynamic Display */}
+        <div className="dashboard-grid">
+          {/* Main Panel */}
+          <div className="dashboard-main">
+            <StatusPanel status={status} />
+          </div>
+
+          {/* Side Probability Panel (ALWAYS SHOWN for absolute horizontal consistency) */}
+          <div className={`stats-panel ${status === "Spoofed" ? "alert" : ""} ${status === "Inactive" ? "inactive-panel" : ""}`}>
+            <h3>Signal Probabilities</h3>
+            <div className="stat-row">
+              <span className="stat-label">Legitimate Avg</span>
+              <span className={`stat-value ${status !== "Inactive" && legitProb > 0.5 ? "text-green" : "text-gray"}`}>
+                {status !== "Inactive" ? legitProb.toFixed(4) : "N/A"}
+              </span>
+            </div>
+            <div className="stat-row">
+              <span className="stat-label">Spoofed Avg</span>
+              <span className={`stat-value ${status !== "Inactive" && spoofProb > 0.5 ? "text-red" : "text-gray"}`}>
+                {status !== "Inactive" ? spoofProb.toFixed(4) : "N/A"}
+              </span>
+            </div>
+          </div>
+        </div>
+
+        {/* Timer & History Widget (ALWAYS SHOWN for absolute vertical consistency) */}
+        <div className="history-widget-container">
+          <div className="timer-controls-row">
+            <button 
+              className="timer-btn" 
+              onClick={() => setShowHistory(!showHistory)}
+            >
+              <span className="timer-icon">⏱️</span> 
+              <span>Session Time: {formatTime(elapsed)}</span>
+              <span className="timer-sub">Tracked Iterations: {history.length} ▼</span>
+            </button>
+
+            <button className="reset-btn" onClick={resetTimerAndLog} title="Reset Timer and Logs">
+              ↻ Reset
+            </button>
+          </div>
+          
+          <div className={`history-dropdown-wrapper ${showHistory ? 'open' : ''}`}>
+            {showHistory && (
+              <div className="history-dropdown">
+                <h4>Session Event Log</h4>
+                {history.length === 0 ? (
+                  <div style={{textAlign: "center", color: "#64748b", margin: "1rem"}}>No data logged yet</div>
+                ) : (
+                  <div className="history-list">
+                    {history.map((log, i) => (
+                      <div key={i} className={`history-row ${log.status === "Spoofed" ? "row-red" : "row-green"}`}>
+                        <span className="h-iter">#{log.iteration}</span>
+                        <span className="h-time">{new Date(log.time).toLocaleTimeString()}</span>
+                        <span className="h-type">{log.status}</span>
+                        <span className="h-prob">Spoof: {log.spoofProb.toFixed(2)}</span>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+            )}
+          </div>
+        </div>
 
         <div className="controls-container">
           <button

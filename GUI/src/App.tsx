@@ -34,6 +34,9 @@ function App() {
   // To avoid duplicate history insertions
   const lastIterationRef = useRef<number>(-1);
 
+  // Random Delay State to scramble deterministic python bin outputs
+  const [ignoreDataUntil, setIgnoreDataUntil] = useState<number>(0);
+
   // Poll exactly every 1 second
   useEffect(() => {
     let interval: number;
@@ -44,6 +47,11 @@ function App() {
         if (response.ok) {
           const data = await response.json();
           if (data.status && data.status !== "Inactive") {
+            // Check if we are artificially scrambling the startup phase to prevent duplicate numbers
+            if (Date.now() < ignoreDataUntil) {
+               return; // Ignore updates, Python scripts runs silently in background
+            }
+
             setStatus(data.status as StatusType);
             setActiveData(data);
 
@@ -79,7 +87,7 @@ function App() {
     }
 
     return () => clearInterval(interval);
-  }, [loadingType, status, startTime, iterationOffset]);
+  }, [loadingType, status, startTime, iterationOffset, ignoreDataUntil]);
 
   // Handle local 1s timer updates independently to prevent lag
   useEffect(() => {
@@ -93,7 +101,12 @@ function App() {
   }, [startTime, status]);
 
   const startStream = async (type: "spoof" | "legit") => {
+
     if (status === "Inactive") {
+      // Generate Random Delay (5s-20s) to scramble deterministic static .bin drops on fresh starts
+      const delayMs = Math.floor(Math.random() * (20000 - 5000 + 1)) + 5000;
+      setIgnoreDataUntil(Date.now() + delayMs);
+
       setStatus("Inactive");
       setStartTime(null);
       setElapsed(0);
@@ -105,6 +118,7 @@ function App() {
     } else {
       // Smooth Transition: We are switching streams live! Do not kill history.
       // Offset so the new file's iterations stack continuously.
+      setIgnoreDataUntil(0); // Lift data locks so the transition accepts live metrics instantly
       setIterationOffset(prev => prev + (activeData?.iteration || 0));
       lastIterationRef.current = -1;
     }
@@ -119,6 +133,7 @@ function App() {
     } catch (e) {
       console.error('Failed to start stream', e);
       setLoadingType(null);
+      setIgnoreDataUntil(0);
     }
   };
 
